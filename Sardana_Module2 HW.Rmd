@@ -1,0 +1,152 @@
+---
+title: Assignment2
+output:
+  pdf_document: default
+  html_document: default
+date: "2023-01-23"
+---
+Problem 1
+Compute the gene means of golub data set
+
+ Installed package multtest from BiocManager 
+
+```{r,echo=FALSE,warning=FALSE, message = FALSE}
+if (!require("BiocManager", quietly = TRUE))
+  install.packages("BiocManager")
+
+BiocManager::install("multtest")
+BiocManager::install("ALL")
+
+library(multtest)
+data(golub)
+gol.fac <- factor(golub.cl, levels=0:1, labels = c("ALL","AML"))
+```
+
+Problem 1 
+a) mean expression values for every gene among ALL patients
+
+
+```{r}
+meanALL <- apply(golub[,gol.fac=="ALL"], 1, mean)
+# meanALL
+
+```
+
+b) mean expression values for every gene among AML patients
+```{r}
+meanAML <- apply(golub[,gol.fac=="AML"], 1, mean)
+# meanAML
+```
+
+c) biological names of three genes with largest mean expression among AML patients
+
+```{r}
+meanALL <- apply(golub[,gol.fac=="ALL"], 1, mean)
+o <- order(abs(meanALL), decreasing=TRUE)
+print(golub.gnames[o[1:3],2])
+```
+
+d) biological names of three genes with largest mean expression value among AML patients
+
+```{r}
+meanAML <- apply(golub[,gol.fac == "AML"], 1,mean)
+o <- order(abs(meanAML),decreasing = TRUE)
+print(golub.gnames[o[1:3],2])
+```
+
+Problem 2 
+
+a) To save the expression values of first five genes for AML patients in a csv
+```{r,eval=FALSE}
+firstFive <- golub[1:5,gol.fac == "AML"]
+write.csv(firstFive,"AML5.csv")
+
+```
+
+b) To save the expression values of first five genes for ALL patients in a text
+```{r,eval=FALSE}
+first_five_ALL <- golub[1:5,gol.fac =="ALL"]
+write.table(first_five_ALL,"ALL5.txt")
+```
+
+c) Compute the standard deviation of expression values on 1st patient of 100th to 200th genes
+```{r}
+
+patient1 <- (golub[100:200,1])
+standardDeviation <- sd(patient1)
+print(standardDeviation)
+```
+
+d) To compute the standard deviation of every gene across all the patients
+```{r}
+standard_deviation <- apply(golub,1,sd)
+print(length(which(standard_deviation>1)))
+
+```
+
+e) A scatter plot of the 101th gene expressions against the 102th gene expressions
+
+```{r}
+gene_exp = golub[101,]
+ 
+ 
+gene_exp2 = golub[102,]
+
+ 
+name1 = golub.gnames[101,2]
+name1
+ 
+name2 = golub.gnames[102,2]
+name2
+ 
+plot(gene_exp,gene_exp2,xlab =name1,ylab = name2, main = "scatterplot of gene expression 101th against 102th")
+
+```
+
+Problem 3
+
+Work with the ALL data set, Load the ALL data from the ALL library and use str and openVignette() for a further orientation.
+
+```{r}
+library("ALL")
+str("ALL")
+# openVignette("ALL")
+
+```
+
+a)  Produce one histogram of gene expression using exprs(ALL[,ALL$BT=="B1"] to extract the gene expression from patients in disease stage B1
+
+```{r,eval = FALSE}
+
+gene_expression_B1 <- exprs(ALL[, ALL$BT == "B1"])
+ hist(gene_expression_B1, xlab = "Gene Expression", ylab = "Frequency", main = "Histogram plot of Gene Expressions in Disease Stage B1")
+
+```
+
+b) mean gene expressions for every gene over these B1 patients.
+
+```{r, eval = FALSE}
+meanB1 <- apply(exprs(ALL[,ALL$BT=="B1"]),1, mean)
+head(meanB1)
+```
+
+c) gene identifiers of the three genes with the largest mean
+```{r,eval = FALSE}
+
+meanB1 <- apply(exprs(ALL[,ALL$BT=="B1"]),1, mean)
+sorted <- sort(meanB1, decreasing=TRUE)
+print(sorted[1:3])
+```
+
+
+Problem 4
+
+To produce 2 overlaid scatterplots Height vs Girth, Volume vs Girth.
+
+```{r}
+ plot(trees$Girth, trees$Height ,pch = "+", xlab = "Girth", main = "Overlaid scatter plot of Girth vs height, Girth vs volume", ylim = c(0, max(trees$Height, trees$Volume)))
+ points(trees$Girth, trees$Height, pch = "+", col = "blue")
+ points(trees$Girth, trees$Volume, pch = "o", col = "red")
+ legend("topright", c("Height", "Volume"), col = c("blue", "red"), pch = c("+", "o"))
+ 
+```

@@ -1,0 +1,191 @@
+---
+title: "Sardana_Module6HW"
+author: "Prachi Sardana"
+date: "2023-02-21"
+output: pdf_document
+---
+
+a) The mean “H4/j gene” gene expression value in the ALL group is greater than 
+-0.9 (note that this is negative 0.9). 
+
+
+Set the null hypothesis mu = -0.9
+Setting the alternative hypothesis > -0.9
+p value is 0.01 which is close to 0 , hence we reject the null hypothesis that gene expression value of H4/J gene is greater than -0.9
+
+```{r}
+
+library(multtest); data(golub)
+gol.fac <- factor(golub.cl, levels=0:1, labels = c("ALL","AML"))
+x <- golub[2972,gol.fac =="ALL"]
+t.test(x,mu = -0.9,alternative ="greater")
+
+```
+
+b) The mean “H4/j gene” gene expression value in ALL group differs from the mean “H4/j gene” gene expression value in the AML group.
+
+alternative hypothesis set to value not equal to 0
+here the p value is 0.14  which is greater thann 0.05,hence accepting null hypothesis.
+
+```{r}
+gol.fac <- factor(golub.cl, levels=0:1, labels = c("ALL","AML"))
+t.test(golub[2972, gol.fac=="ALL"], golub[2972, gol.fac=="AML"] )
+
+```
+
+c) In the ALL group, the mean expression value for the “H4/j gene” gene is lower than the mean expression value for the “APS Prostate specific antigen” gene. 
+
+p value = 0.04
+
+The mean expression value for the "H4/j gene" gene is significantly lower than the mean expression value for the "APS Prostate specific antigen" gene in the ALL group,because the p valued of the test is less than the significance level of 0.05, which means we reject the null hypothesis. 
+
+```{r}
+gol.fac <- factor(golub.cl, levels=0:1, labels = c("ALL","AML"))
+
+# H4/j gene expression
+x <- golub[2972,gol.fac =="ALL"]
+
+# APS Prostate specific antigen
+y <- golub[2989,gol.fac == "ALL"]
+
+# t- test statistics when H4gene is lower than the mean expression value for APS.
+t.test(x,y,alternative ="less",mu = 0)
+
+
+
+```
+d) Let pH4j denotes the proportion of patients for whom the “H4/j gene” expression values is greater than -0.6. We wish to show that pH4j in the ALL group is less than 0.5.
+
+We'll accept the null hypothesis as the p value is close to 0.1.
+```{r}
+# H4/j gene expression
+X <-golub[2972,gol.fac=="ALL"]
+
+# proportion of pH4j patients greater than -0.6(Binomial test)
+binom.test(sum(X > -0.6), length(X), p=0.5, alternative = "less")
+
+```
+e) The proportion pH4j in the ALL group differs from the proportion pH4j in the AML group. 
+
+p value is 0.101 hence we accept the null hypothesis that the proportion of pH4J differs from the AML group.
+```{r}
+# All group H4 gene 
+z_h4_all <- golub[2972,gol.fac=="ALL"]
+# AML group H4 gene
+z_h4_aml <- golub[2972,gol.fac=="AML"]
+
+prop.test(x=c(sum(z_h4_all > -0.6), sum(z_h4_aml > -0.6)),n=c(length(z_h4_all),length(z_h4_aml)), alternative = "two.sided")
+
+
+```
+2. a ) # The probability to reject a biological hypothesis by the results of a certain experiment is 0.03
+# The experiment is repeated 3000 times
+# according to binomial expression
+
+```{r}
+
+
+n = 3000
+p = 0.03
+E_x = n*p
+E_x
+
+```
+b) Probability less than 75 rejections
+
+```{r}
+
+pbinom(74,3000,0.03)
+
+```
+3.) Test
+The output test is invalid as the the alpha significance =0.1 and test is not close to 0.1 to be valid. Here the numerical estimate is 0.05.
+```{r}
+
+# Number of simulations = 10000
+number_sim <- 10000 
+
+# sample size 
+n <- 30 
+
+# population mean
+population_mean <- 5 
+
+# Standard deviation
+standard_dev <- 4 
+
+alpha <- 0.1 
+
+# Calculating critical t value 
+
+tvalue_lower <- qt(0.3, n-1)
+tvalue_higher <- qt(0.4, n-1)
+
+# vector initialization for test results
+testresult <- numeric(number_sim) 
+# initializing simulation
+for (i in 1:number_sim) {
+  x <- rnorm(n, mean=population_mean, sd=standard_dev)  # random sample generation
+  x_mean <- mean(x)  # sample mean, standard deviation calculation
+  s <- sd(x)
+  #  t statistic value calculation
+  t_stat <- (x_mean - population_mean)/(s/sqrt(n))
+  # Condition if t statistic falls between the critical values for hypothesis rejection
+  if (t_stat > tvalue_lower  & t_stat < tvalue_higher) {
+    testresult[i] <- 0 # no HO rejection
+  } else {
+    testresult[i] <- 1 # H0 rejection
+  }
+}
+
+# Calculating Type I error rate
+type1error<- mean(testresult)
+type1error
+cat("Type I error rate is", type1error)
+
+```
+
+4. To perform Welch two-sample t-tests to compare every gene’s expression values in ALL group versus in AML group. 
+
+a) To Use Bonferroni and FDR adjustments both at 0.05 level and count the differentially expressed genes
+
+b) To find the gene names for the top three strongest differentially expressed genes 
+```{r}
+
+data(golub, package = "multtest")
+gol.fac <- factor(golub.cl, levels=0:1, labels = c("ALL","AML"))
+
+# P.values
+p.values <- apply(golub, 1, function(x) t.test(x ~ gol.fac)$p.value) 
+
+# P.bonferroni
+p.bon <-p.adjust(p=p.values, method="bonferroni")
+
+# P.fdr
+p.fdr <-p.adjust(p=p.values, method="fdr")
+
+p_bonferroni <- sum(p.bon<0.05)
+p_bonferroni
+
+p_fdr <- sum(p.fdr <0.05)
+p_fdr
+
+
+# Top three strongest differentially expressed genes
+
+exp_value <- order(p.values, decreasing = FALSE)
+three <- exp_value[1:3]
+cat("\nThe top three strongest differentially expressed genes are:\n")
+for (i in three) {
+   cat(golub.gnames[i, 2],"\n")
+}
+
+
+```          
+
+
+
+
+
+
+

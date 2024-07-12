@@ -1,0 +1,140 @@
+---
+title: "**Assignment1**"
+output:
+  pdf_document: default
+  word_document: default
+  html_document:
+    df_print: paged
+date: "2023-01-16"
+---
+
+Problem 1 (a)
+This type of vector is numeric
+used type of function to predict the class of the object
+```{r}
+
+vec <-c(5,TRUE) 
+typeof(vec)
+
+```
+Problem 1 (b) To calculate the expression of given vectors x+y
+```{r}
+
+x <- 1:4
+y <- 1:2
+x+y
+
+```
+Problem 1 (c) the R command c(1,2) %*% t(c(1,2)) 
+The code returns a two by two matrix
+
+```{r}
+
+c(1,2) %*% t(c(1,2))
+
+```
+Problem 1 (d) Running the provided R statement gives the output as 10
+
+```{r}
+
+f <- function(x) { 
+  g <- function(y) { 
+    y+z
+   }
+  z<-4
+  x+g(x)
+}
+
+z<-15
+f(3)
+
+```
+Problem 2 Use R to calculate the provided expression in question
+
+```{r}
+
+sum <- 0
+for(x in 1:1000){
+  
+    sum = sum +x^2
+  
+}
+print(sum)
+
+
+```
+Question 3 
+(a)	Create a vector named “age” to represent reasonable age of a person
+```{r}
+
+age_years <- c(10,15,20,25,30,35,40,45,50,55)
+age_years
+
+```
+(b)	Multiply each person’s age by 12 (to convert into months). 
+```{r}
+
+person_age_months <- age_years*12
+person_age_months
+
+```
+c)	Find the sum of ages of all these people. 
+
+```{r}
+
+sum(person_age_months)
+
+``` 
+d)	Find the age of the youngest person
+```{r}
+
+min(person_age_months)
+
+``` 
+e)	Find the age of the oldest person.
+
+```{r}
+
+max(person_age_months)
+
+``` 
+f)	Find the square root of the age of each person. (Not sure what this means, but who cares?) (this also should be a vector)
+
+```{r}
+
+sqrt(person_age_months)
+
+``` 
+Question 4 
+(g)	Create a vector X of length 30, with the kth element in X = 3k, for k=1…30. Print out the values of X.
+
+```{r}
+
+X <- seq(1,30 ,by =3)
+x1 <- 3*X
+x1
+
+``` 
+h)	Create a vector Y of length 30, with all elements in Y equal to 0. Print out the values of Y.
+```{r}
+
+Y <- rep(0,30)
+Y
+
+``` 
+i)	Using a “for” loop, reassigns the value of the k-th element in Y, for k = 1…30. When k less than 20, the kth element of Y is reassigned as the sine of (2k).  When the k greater than  20,  the kth element of Y is reassigned as the value of integral  .  (You may want to use $value at the end of the line to get the integration with R clean out unwanted values)
+
+```{r}
+
+Y <- rep(0,30)
+for (k in 1:30){
+  if (k<20){
+    Y[k] = sin(2*k)
+  } else if (k>= 20){
+    Y[k] = integrate(sqrt, lower = 0, upper = k)$value
+  }
+}
+print(Y)
+
+``` 
+

@@ -1,0 +1,188 @@
+---
+title: "Sardana_Module10-HW"
+author: "Prachi Sardana"
+date: "2023-04-03"
+output:
+  pdf_document: default
+  word_document: default
+---
+
+Question 1 a) To conduct hierarchical clustering using single linkage and Ward linkage and Plot the cluster dendrogram for both fit. Get two clusters from each of the methods. Use function table() to compare the clusters with the two patient groups ALL/AML
+
+The ward linkage function works better than the single linkage as it is segregating the data into easy certain clusters 
+
+```{r}
+# Loaded the data golub
+data(golub, package="multtest")
+
+# Factored golub data 
+gol.fac <- factor(golub.cl,levels=0:1, labels= c("ALL","AML"))
+
+grep("CCND3 Cyclin D3",golub.gnames[,2])
+
+
+clustdata <- data.frame(golub[1042,])
+
+#Single clustering
+hcALL.sing<-hclust(dist(clustdata, method="euclidian"), method="single")
+plot(hcALL.sing, labels=gol.fac)
+
+
+hcALL.ward<-hclust(dist(clustdata, method="euclidian"), method="ward.D2")
+rect.hclust(hcALL.sing,k=2)
+single_method<-cutree(hcALL.sing, k=2)
+table(single_method,gol.fac)
+
+#Ward clustering
+plot(hcALL.ward, labels=gol.fac)
+rect.hclust(hcALL.ward,k=2)
+ward_method<-cutree(hcALL.ward, k=2)
+table(ward_method,gol.fac)
+
+
+```
+
+b) To use k-means cluster analysis to get two clusters. Use table() to compare the two clusters with the two patient groups ALL/AML. 
+
+
+```{r}
+colnames(clustdata) <- c("CCND3 Cyclin D3")
+k_meansfit <- kmeans(clustdata, centers = 2)
+table(k_meansfit$cluster, gol.fac)
+```
+c)
+
+```{r}
+k_meansfit$centers
+```
+d) It is evident that the two clusters maintain their stability even after re sampling. The bootstrap means are nearly identical to the 2-means obtained from the initial clustering, indicating that the estimation bias is minimal. The estimates of cluster means are quite accurate, as demonstrated by the relatively small 95% bootstrap confidence intervals.
+
+```{r}
+
+initial <-k_meansfit$centers
+n <- dim(clustdata)[1]; nboot<-1000
+boot.CI <- matrix(NA,nrow=nboot,ncol = 2)
+for (i in 1:nboot){
+  data.star <- clustdata[sample(1:n,replace=TRUE),]
+  CI <- kmeans(data.star, initial, nstart = 2)
+  boot.CI[i,] <- c(CI$centers[1],CI$centers[2])
+}
+apply(boot.CI,2,mean)
+quantile(boot.CI[,1],c(0.025,0.975))
+quantile(boot.CI[,2],c(0.025,0.975))
+
+
+
+```
+e) Plot of K versus SSE, for K=1, …, 30. 
+A big drop off is observed in SSE from K=1 to K=2. There is a further drop off of SSE to K = 3. Thereafter, decrease in SSE starts to level off. So two or three clusters seems best in the data.
+
+
+```{r}
+K<-(1:30); sse<-rep(NA,length(K))
+for (k in K){
+  sse[k] <- kmeans(clustdata, centers = k, nstart = 10)$tot.withinss
+}
+plot(K, sse, type='o', xaxt='n'); axis(1, at = K, las=2)
+```
+
+Question 2 
+
+a) Selected the oncogenes and antigens from the Golub data using grep function.
+```{r}
+data(golub, package = "multtest")
+gol.fac <- factor(golub.cl, levels = 0:1,labels = c("ALL", "AML"))
+oncogenes <- grep("oncogene", golub.gnames[,2])
+oncogenes
+antigens <- grep("antigen", golub.gnames[,2])
+antigens
+```
+(b)	On the selected data, do clustering analysis for the genes (not for the patients). Using K-means and K-medoids with K=2 to cluster the genes. Use 
+b)
+
+```{r}
+clusdata <- rbind(golub[oncogenes,], golub[antigens,])
+
+clusters.2km <- kmeans(clusdata, centers=2)
+g.name<-rep(c("oncogenes","antigens"), c(length(oncogenes), length(antigens)))
+
+# kmeans clustering 
+table(clusters.2km$cluster, g.name)
+
+# k-mediod clustering
+library(cluster)
+k.pam <- pam(clusdata, k=2)
+table(k.pam$clustering, g.name)
+
+```
+c) Fisher test is used to test the marginal independence in two tables.
+
+Hierarchical clustering method provides cluster related to two gene groups.
+
+```{r}
+
+k_means_table <- table(clusters.2km$cluster, g.name)
+
+k_mediod_table <- table(k.pam$clustering, g.name)
+
+fisher.test(k_means_table)
+fisher.test(k_mediod_table)
+
+
+```
+d) To	plot the cluster dendrograms for this part of golub data with single linkage and complete linkage, using Euclidean distance. 
+
+```{r}
+clusdata <- rbind(golub[oncogenes,], golub[antigens,])
+# Single linkage
+hcALL.sing<-hclust(dist(clusdata,method="euclidian"),method="single")
+g.name<-rep(c("oncogenes","antigens"), c(length(oncogenes), length(antigens)))
+
+# Cluster dendogram  of single linkage
+plot(hcALL.sing, labels=g.name)
+
+# Complete linkage
+hcALL.complete <-hclust(dist(clusdata,method="euclidian"),method="complete")
+
+# Cluster dendogram of complete linkage
+plot(hcALL.complete, labels = g.name)
+
+
+
+
+```
+
+Question 3 
+
+a) Using k-means clustering, produce a plot of K versus SSE, for K=1,…, 30
+clustering starts drop after k = 7 .
+
+```{r}
+
+library(ISLR)
+# Loading NCIdata
+ncidata <- NCI60$data
+# Loading cancer cell lines contained in ncilabs
+ncilabs <- NCI60$labs
+
+# k means clustering
+K<-(1:30); sse<-rep(NA,length(K))
+for (k in K){
+  sse[k] <- kmeans(ncidata, centers = k, nstart = 10)$tot.withinss
+}
+plot(K, sse, type='o', xaxt='n'); axis(1, at = K, las=2)
+
+
+```
+b) K-medoids clustering (K=7) with 1-correlation as the dissimilarity measure 
+
+```{r}
+k_medoid<-pam(as.dist(1-cor(t(ncidata))),k=7)
+table(ncilabs,k_medoid$clustering)
+
+```
+Through the table , breast cancer and prostate cancer share very less similarity in clustering pattern while colon cancer and leukemia are defined into single cluster. The small cell lung cancer (NSCLC) have a large clustering which is similar to clustering pattern of ovarian cancer. 
+
+
+
+

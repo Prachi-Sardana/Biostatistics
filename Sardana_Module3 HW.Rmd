@@ -1,0 +1,163 @@
+---
+title: "**Sardana_Module3HW.Rmd**"
+output:
+  pdf_document: default
+  word_document: default
+  html_document:
+    df_print: paged
+date: "2023-01-31"
+---
+
+Problem 1 (a)
+Given function is Poisson distribution 
+1.# P(X=1)
+```{r}
+
+P <- dpois(1, lambda = 3)
+P
+
+```
+
+Problem 1 b) # P(-3<X<5). 
+
+```{r}
+
+x_range <- c(-3:5)
+sum(dpois(x_range, lambda = 3))
+
+```
+
+Problem2 
+```{r}
+n=5 
+p = 1/7
+```
+
+Problem3
+
+Binomial distribution #(n = 3, p = 0.25) 
+# To compute 
+a)	#P(Y ≤ 2)
+```{r}
+pbinom(2,size = 3, p = 0.25)
+```
+
+b)	E(Y) 
+```{r}
+EY <- 3*0.25
+EY
+
+```
+
+c) Var(Y) 
+```{r}
+VarY <- 3 * 0.25 * (1-0.25)
+VarY
+
+```
+
+Problem 4
+
+Chi square distribution
+a) P(2 < X < 5) 
+```{r}
+pchisq(5,df=5) - pchisq(2,df=5)
+
+```
+
+b) E(X) 
+
+```{r}
+a <- 5	
+EX <- a
+EX
+
+```
+
+c) Var(X)
+
+```{r}
+a <- 5
+Var_X <- 2 * a
+Var_X
+
+```
+
+d) Monte Carlo simulation
+yes answer a) follows monte carlo stimulation 
+
+```{r}
+n <- 100000
+df <- 5
+chis_estimate <- rchisq(n,df)
+chis_estimate <- sum(chis_estimate > 2 & chis_estimate < 5)/n
+chis_estimate
+
+
+```
+
+Problem 5
+Chisquare distribution
+a) Compute E(Y) and Var (Y)
+
+```{r}
+E_X = 8
+
+E_Y = 3*E_X-5
+E_Y
+
+Var_X <- 12
+Var_Y <- 3^2*Var_X
+Var_Y
+
+
+```
+
+b) No it does not follow a Chisquare distribution with degree of freedom m = 6
+Variance should be 38 as Ey value is 19 and variance should be 2*19 = 38. 
+
+Problem 6 
+
+Normal distribution
+
+
+a) Probability that a randomly chosen patient have the Zyxin gene expression values between 1 and 1.6
+
+
+
+```{r}
+mu <- 1.6
+deviation <- 0.4
+probability <- pnorm(1.6, mean = mu, sd = deviation) - pnorm(1, mean = mu, sd = deviation)
+probability
+
+```
+
+b) Monte Carlo Simulation
+# Estimate the probability as the proportion of samples between 1 and 1.6
+
+```{r}
+n <- 500000
+mu <- 1.6
+deviation <- 0.4
+
+simulation <- rnorm(n, mean = mu, sd = deviation)
+
+estimate_value <- mean(simulation >= 1 & simulation <= 1.6)
+estimate_value
+
+```
+
+c)# Probability that exactly 2 out of 5 patients have the Zyxin gene expression values between 1 and 1.6
+Binomial distribution
+```{r}
+#probability <- pnorm(1.6, mean = mu, sd = deviation) - pnorm(1, mean = mu, sd = deviation)
+#probability
+n <- 5
+p <- probability
+prob <- dbinom(2, size = n, prob = p)
+prob
+
+```
+
+

@@ -1,0 +1,97 @@
+---
+title: "Sardana_Module7-HW"
+author: "Prachi Sardana"
+date: "2023-03-05"
+output: pdf_document
+---
+
+1.
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library("ALL")
+data("ALL")
+
+ALLB123 <- ALL[,ALL$BT%in%c("B1","B2","B3","B4")]
+y <- exprs(ALLB123)["109_at",] 
+anova(lm(y ~ ALLB123$BT))
+
+```
+
+1 b )
+
+
+
+```{r}
+
+library("ALL")
+data("ALL")
+
+ALLB123 <- ALL[,ALL$BT =="B3"]
+mean_B3 <- lm(exprs(ALLB123)["109_at",]~1)
+summary(mean_B3)
+
+```
+
+
+
+c) Use the pairwise comparisons at FDR=0.05 to find which group means are different. Show the output of your code. What is your conclusion?
+```{r}
+
+library("ALL")
+data("ALL")
+ALLB123 <- ALL[,ALL$BT%in%c("B1","B2","B3")] 
+y <- exprs(ALLB123)["109_at",] 
+p_values <- pairwise.t.test(y,ALLB123$BT,p.adjust.method='fdr')
+p_values
+
+
+```
+
+d)
+
+```{r}
+library("ALL")
+data("ALL")
+ALLB123 <- ALL[,ALL$BT%in%c("B1","B2","B3")] 
+y <- exprs(ALLB123)["109_at",] 
+shapiro.test(residuals(lm(y ~ ALLB123$BT)))
+
+bptest(lm(y ~ ALLB123$BT), studentize = FALSE)
+
+```
+Question 2 
+a) 
+
+```{r}
+data(ALL,package="ALL");library(ALL)
+ALLB123 <- ALL[,ALL$BT %in% c("B1","B2","B3","B4")]
+y <- exprs(ALLB123)[1,]
+kruskal.test(y ~ ALLB123$BT)
+p_values <- kruskal.test(y,ALLB123$BT, p.adjust.method='fdr')
+
+
+
+kw_test <- function(y) {
+  kruskal.test(y ~ ALLB123$BT)$p.value
+}
+
+pkw <- apply(exprs(ALLB123), 1, function(y) kruskal.test(y ~ ALLB$BT)$p.values
+
+             
+diff_genes <- ALLB123[adjusted_pvalues <= 0.05, 1]
+
+```
+
+
+
+Question 2 b)
+
+
+```{r}
+library("ALL")
+data("ALL")
+
+
+```
+

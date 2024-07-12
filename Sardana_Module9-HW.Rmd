@@ -1,0 +1,146 @@
+---
+title: "Sardana_Module9-HW"
+author: "Prachi Sardana"
+date: "2023-03-20"
+output:
+  pdf_document: default
+  word_document: default
+---
+Question 1 
+
+```{r}
+# Loaded golub data set
+data(golub, package='multtest')
+# a) GRO2 gene expression
+GRO2_gene <- grep("GRO2", golub.gnames[, 2])
+GRO2_gene
+# GRO3 gene expression
+GRO3_gene <- grep("GRO3", golub.gnames[,2])
+GRO3_gene
+x <- golub[2714,]
+y <- golub[2715,]
+# correlation of x and y 
+cor(x,y)
+
+# b)
+# parametric 90% confident interval for the correlation with cor.test()
+cor.test(x,y,
+         alternative = "greater",
+         method = "pearson", 
+         exact = NULL, conf.level = 0.90, continuity = FALSE)
+# c)
+
+# bootstrap 90% confident interval for the correlation
+
+nboot <- 2000 # resample 2000 times
+boot.cor<-matrix(0,nrow=nboot,ncol=1) # vector to have resampled statistics 
+data<- cbind(x,y) # Data set with x and y two coloumns
+for (i in 1:nboot){
+  dat.star<-data[sample(1:nrow(data), replace=TRUE), ] # resample the pairs
+  boot.cor[i,] <- cor(dat.star[,1], dat.star[,2]) # correlation on resampled data
+}
+# Find quantiles for resampled statistics
+quantile(boot.cor[,1], c(0.05,0.90)) # bootstrap 90% interval 
+
+```
+
+
+Question 2 
+
+```{r}
+# a)
+# total genes having correlation values less than negative 0.5
+data(golub)
+library(multtest)
+# golub.gnames[2124,] zyxin gene expression
+
+corr <- apply(golub,1,cor, as.numeric( golub[2124,] ))
+num_corr <- sum(corr < -0.5)
+print(paste("Number of genes with correlation less than -0.5:", num_corr))
+  
+# b )
+# gene names for the top five genes that are most negatively correlated with Zyxin gene.
+
+
+order_corr <- order(corr)
+top_five_genes <- golub.gnames[order_corr,][1:5,2]
+print(paste("Top five genes which are negatively correlated are",top_five_genes))
+
+# c)
+
+# Using the correlation test, total genes are negatively correlated with the Zyxin gene with fdr of 0.05
+
+cor_zyxin <- apply(golub,1,function(x) cor.test(x, as.numeric(golub[2124,]),
+alternative = "less")$p.value)
+p_fdr <- p.adjust(cor_zyxin,method = "fdr")
+sum(p_fdr < 0.05)
+
+```
+Question 3
+```{r}
+# a)
+
+data(golub)
+library(multtest)
+
+GRO2_gene <- golub[2714,]
+GRO3_gene <- golub[2715,]
+
+reg.fit <- lm(GRO3_gene ~ GRO2_gene)
+summary(reg.fit)
+cor.test(GRO3_gene,GRO2_gene)
+
+
+# Since, the p value is 2.201e-09, the Pearson's product-moment correlation test indicates that there is very less positive linear relationship between gene expression values.
+
+# b)
+predict(reg.fit, newdata=data.frame(GRO2_gene=0), interval="prediction",level = 0.80)
+
+# c)
+shapiro.test(resid(reg.fit))
+
+# Since the p value is greater than 0.05 , we can't reject the null hypothesis
+
+
+```
+
+
+Question 4
+```{r}
+
+# a 
+# Loaded the data stackloss
+data("stackloss")
+
+# Regress stack.loss on the other three variables.
+lin.reg<-lm(stack.loss~Air.Flow+Water.Temp+Acid.Conc.,data = stackloss)
+summary(lin.reg)
+lm(formula = stack.loss~Air.Flow+Water.Temp+Acid.Conc.,data = stackloss)
+
+
+# The fitted regression equation is as follows: Stack.Loss = -39.92 +0.72Air.FLow +1.30Water.Temp -0.15Acid.Conc.
+
+
+
+```
+Question 4 
+# b 
+No, none of the factors have a statistically significant impact on stack loss.Although air flow and water temps do,yet,acid concentration does not. Together, the variables account for 90% of the overall variation in stack loss.
+
+Question 4 
+# c
+```{r}
+# Loaded the data stackloss
+data("stackloss")
+
+# Regress stack.loss on the other three variables
+lin.reg<-lm(stack.loss~Air.Flow+Water.Temp+Acid.Conc.,data = stackloss)
+
+# Find a 90% confidence interval 
+predict(lin.reg, data.frame(Air.Flow=60,Water.Temp=20,Acid.Conc.=90),interval= "confidence", level = 0.90)
+
+# Find 90% prediction interval for stack.loss
+predict(lin.reg, data.frame(Air.Flow=60,Water.Temp=20,Acid.Conc.=90),interval= "prediction", level = 0.90)
+
+```
+

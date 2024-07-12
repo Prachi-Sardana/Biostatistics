@@ -1,0 +1,147 @@
+---
+title: "Sardana_Module7HW"
+author: "Prachi Sardana"
+date: "2023-02-27"
+output:
+  pdf_document: default
+  word_document: default
+---
+Problem 1
+
+
+```{r}
+
+# loaded data golub and package multest
+
+
+data(golub, package='multtest')
+
+gol.fac <- factor(golub.cl, levels=0:1, labels = c("ALL","AML"))
+gene_expression <- nrow(golub)
+p.values <- rep(NA, gene_expression)
+# used for loop calculate the p- value and performed wilcoxon test
+for(i in 1:gene_expression){
+  p.values[i] <- wilcox.test(golub[i,gol.fac=="ALL"],golub[i,gol.fac=="AML"], paired = FALSE, 
+                              alternative = "greater")$p.value
+}
+# False discovery rate
+p.fdr <- p.adjust(p=p.values, method = "fdr")
+alpha = 0.05
+x <- sum(p.fdr < alpha)
+x
+ 
+
+
+
+wilcoxon_p <- apply(golub, 1, function(x) wilcox.test(x ~ gol.fac)$p.value)
+top_three <- order(p.values,decreasing = FALSE)
+# top 3 genes with smallest p values
+golub.gnames[top_three[1:3],2]
+
+```
+
+Problem set 2
+
+```{r}
+# loaded golub data and package multtest
+data(golub, package='multtest')
+# factored golub as ALL and AML
+gol.fac <- factor(golub.cl,levels=0:1, labels= c("ALL","AML"))
+gol_aml <- golub[,gol.fac == "AML"]
+
+# applied shapiro wilk test for normality
+shapiro <- apply(gol_aml, 1, function(x) shapiro.test(x)$p.value)
+# performed fdr adjustment
+p.fdr <- p.adjust(shapiro,method = "fdr")
+# calculating the genes that do not pass the test at 0.05 level
+p_fdr <- sum(p.fdr < 0.05)
+p_fdr
+
+
+```
+
+Problem set 3
+
+```{r}
+# Load the 'multtest' package
+data(golub, package='multtest')
+gol.fac <- factor(golub.cl, levels=0:1, labels = c("ALL", "AML"))
+
+# the CD_33 gene is located at 808 in golb , factor as ALL
+CD33_gene <- golub[808, gol.fac== "ALL"]
+
+# The HOXA9_gene is located at 1391 level, factor as ALL
+HOXA9_gene <- golub[1391, gol.fac=="ALL"]
+
+# calculated wilcox.test to check if both the genes express at same level.
+wilcox.test(x = HOXA9_gene, y = CD33_gene, paired = TRUE, alternative = 
+              "two.sided")
+                    
+# the genes are not expressed at the same level as the p- value is 0.01242
+
+
+```
+
+Problem set 4 
+
+```{r}
+# UCBAdmissions
+str(UCBAdmissions)
+# Set the significance level
+alpha  <- 0.05
+
+# To perform chi-squared tests
+for (i in 1:6){
+  # Contigence table for current department
+  table <- UCBAdmissions[,,i]
+  
+  # To perform Chi-square test
+  chi_square <- chisq.test(table)
+  
+  # extracting p value from the test results
+  p_value <- chi_square$p.value
+  
+  # print the results
+  cat("Department",i,"\n")
+  cat("Contigency table: \n")
+  print(table)
+  cat("p_value = ", p_value,"\n")
+  if (p_value < alpha){
+    cat("There is significant evidence of relationship between admission decision and gender department",i,"\n")
+  }else {
+    cat ("There is no significant evidence of relationship between admission decision and gender department",i,"\n")
+  }
+  cat("\n")
+}
+
+```
+
+Problem set 5
+
+After computing the p-value as the proportion of permutation test statistics that are less than or equal to the observed test statistic. This gives the one-sided p-value for the hypothesis that the variance in the ALL group is smaller than the variance in the AML group
+
+```{r}
+# Library mulltest
+library(multtest)
+data(golub,package = "multtest")
+# factored golub as ALL ,AML
+gol.fac <- factor(golub.cl, levels=0:1, labels = c("ALL", "AML"))
+# loaded CD33 gene data 
+CD33_data <- golub[808,]
+n <- length(CD33_data)
+# observed statistics
+T.obs <- (var(CD33_data[gol.fac=="ALL"]))^2/(var(CD33_data[gol.fac=="AML"]))^2
+# Number of permutations = 2000
+n.perm <- 2000
+# permuted statistics
+T.perm <- rep(NA, n.perm)
+
+# used for loop to 
+for (i in 1:n.perm) {
+  data.perm = sample(CD33_data, n, replace = FALSE)
+  T.perm[i] = abs(var(data.perm[gol.fac=="ALL"]))^2/(var(data.perm[gol.fac=="AML"]))^2
+}
+# p -value 
+mean (T.perm<T.obs)
+
+```
